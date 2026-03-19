@@ -35,9 +35,29 @@ if col is not None:
     except Exception:
         session = None
 
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'), col('SEARCH_ON'))
+#my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'), col('SEARCH_ON'))
 # st.dataframe(data=my_dataframe, use_container_width=True)
 # st.stop()
+
+
+session = None
+col = None
+
+# Try importing Snowpark's 'col' (ok to continue if not installed)
+try:
+    from snowflake.snowpark.functions import col as sf_col  # type: ignore
+    col = sf_col
+except Exception:
+    col = None  # Snowflake not installed
+
+# Try creating a Snowflake session via Streamlit connection (ok to continue if not configured)
+if col is not None:
+    try:
+        # Requires [connections.snowflake] in Streamlit secrets (see below)
+        cnx = st.connection("snowflake")
+        session = cnx.session()
+    except Exception:
+        session = None
 
 pd_df = my_dataframe.to_pandas()
 
